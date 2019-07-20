@@ -11,7 +11,8 @@ class ChatManager {
         if (user) {
             return user;
         } else {
-            const newUser = new User(id, username);
+            // const newUser = new User(id, username);
+            const newUser = {id, username};
             this.users.push(newUser);
             return newUser;
         }
@@ -25,7 +26,7 @@ class ChatManager {
         return this.users.find(user => user.id === id);
     }
 
-    exitUser(id) {
+    removeUser(id) {
         const user = this.getUser(id);
         if (user) {
             this.users = this.users.filter(user => user.id !== id);

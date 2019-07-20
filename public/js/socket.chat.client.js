@@ -16,29 +16,21 @@ socket.on('connect', function () {
 
     const loginInfo = { username, loginTime: new Date().getTime() };
     socket.emit('login-chat', loginInfo, function (err, data) {
-        console.log(err);
+        if (err) {
+            return alert (err);
+        }
+        console.log(data);
     });
 });
 
-// escuchar
 socket.on('disconnect', function () {
-
     console.log('Perdimos conexión con el servidor');
-
+    const logoutInfo = { username, loginTime: new Date().getTime() };
+    socket.emit('exit-chat', logoutInfo, function (err) {
+        console.log('exit chat OK');
+    });
 });
 
-
-// Enviar información
-socket.emit('enviarMensaje', {
-    usuario: 'Fernando',
-    mensaje: 'Hola Mundo'
-}, function (resp) {
-    console.log('respuesta server: ', resp);
-});
-
-// Escuchar información
-socket.on('enviarMensaje', function (mensaje) {
-
-    console.log('Servidor:', mensaje);
-
+socket.on('notification', function (data) {
+    console.log(data);
 });
