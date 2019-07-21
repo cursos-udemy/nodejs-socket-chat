@@ -7,49 +7,58 @@ const chatManager = new ChatManager();
 io.on('connection', (client) => {
 
     client.on('exit-chat', (data) => {
-        console.log('<<<<<<<<<EXIT CHAT: ', client.id);
+        const user = chatManager.getUser(client.id);
+        if (user) {
+            console.info(`<===EXIT-CHAT ->  id: ${user.id}, username: ${user.username}, room: ${user.room}`) ;
+            chatManager.removeUser(client.id);
+        }
     });
 
     client.on('login-chat', (data, callback) => {
-        if (!data || !data.username) {
-            console.error('Login con informacion incorrecta!', data);
-            callback('Login con informacion incorrecta!');
+        if (!data || !data.username || !data.room) {
+            console.error('Error. no puede conectarse a la sala. Revise sus credenciales!', data);
+            callback('Error. no puede conectarse a la sala. Revise sus credenciales!');
             return;
         }
-        console.log('login-chat, ', client.id);
-        const user = chatManager.addUser(client.id, data.username);
-        callback(null, chatManager.getUsers());
+        console.info(`===>LOGIN-CHAT -> id: ${client.id}, username: ${data.username}, room: ${data.room}`);
+        const user = chatManager.addUser(client.id, data.username, data.room);
+        client.join(data.room);
+        callback(null, chatManager.getUsersByRoom(data.room));
         const notification = new ChatMessage('Administrador', `${user.username} se ha unido al chat!`);
-        client.broadcast.emit('notification', notification);
+        client.broadcast.to(data.room).emit('notification', notification);
     });
 
     client.on('disconnect', () => {
-        console.log('disconnect ', client.id);
         const user = chatManager.removeUser(client.id);
-        const notification = new ChatMessage('Administrador', `${user.username} ha abandonado el chat!`);
-        client.broadcast.emit('notification', notification);
+        if (user) {
+            console.info(`<===DISCONNECT -> id: ${client.id}, username: ${user.username}, room: ${user.room}`);
+            const notification = new ChatMessage('Administrador', `${user.username} ha abandonado el chat!`);
+            client.broadcast.to(user.room).emit('notification', notification);
+            client.broadcast.to(user.room).emit('notification', chatManager.getUsersByRoom(user.room));
+        }
     });
 
     client.on('send-public-message', function (data) {
+        //TODO: validar message
         const user = chatManager.getUser(client.id);
         console.log('send-public-message: ', user.username, data.message);
         const message = new ChatMessage(user.username, data.message);
         client.broadcast.emit('publish-message', message)
     });
 
+    client.on('send-group-message', function (data) {
+        //TODO: validar message y room
+        const user = chatManager.getUser(client.id);
+        console.log('send-group-message: ', user.username, data.message);
+        const message = new ChatMessage(user.username, data.message);
+        client.broadcast.to(data.room).emit('publish-message', message)
+    });
+
     client.on('send-private-message', function (data) {
-        //TODO: validar ID destinatario.
+        //TODO: validar message y ID destinatario.
         const user = chatManager.getUser(client.id);
         console.log('send-private-message: ', user.username, data.message, data.receiver);
         const message = new ChatMessage(user.username, data.message);
         client.broadcast.to(data.receiver).emit('publish-message', message)
     });
-
-    client.on('send-group-message', function (data) {
-        const user = chatManager.getUser(client.id);
-        console.log('send-message: ', user.username, data.message);
-        const message = new ChatMessage(user.username, data.message);
-        client.broadcast.emit('publish-message', message)
-    });
-
 });

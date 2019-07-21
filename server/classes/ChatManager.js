@@ -6,12 +6,12 @@ class ChatManager {
         this.users = []
     }
 
-    addUser(id, username) {
+    addUser(id, username, room) {
         const user = this.getUser(id);
         if (user) {
             return user;
         } else {
-            const newUser = new User(id, username);
+            const newUser = new User(id, username, room);
             this.users.push(newUser);
             return newUser;
         }
@@ -19,6 +19,10 @@ class ChatManager {
 
     getUsers() {
         return this.users;
+    }
+
+    getUsersByRoom(room) {
+        return this.users.filter(user => user.room === room);
     }
 
     getUser(id) {
