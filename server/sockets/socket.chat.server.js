@@ -24,8 +24,10 @@ io.on('connection', (client) => {
         const user = chatManager.addUser(client.id, data.username, data.room);
         client.join(data.room);
         callback(null, chatManager.getUsersByRoom(data.room));
+        //TODO: ver si tiene sentido enviar este mensaje
         const notification = new ChatMessage('Administrador', `${user.username} se ha unido al chat!`);
         client.broadcast.to(data.room).emit('notification', notification);
+        client.broadcast.to(user.room).emit('refresh-users', chatManager.getUsersByRoom(user.room));
     });
 
     client.on('disconnect', () => {
@@ -34,7 +36,7 @@ io.on('connection', (client) => {
             console.info(`<===DISCONNECT -> id: ${client.id}, username: ${user.username}, room: ${user.room}`);
             const notification = new ChatMessage('Administrador', `${user.username} ha abandonado el chat!`);
             client.broadcast.to(user.room).emit('notification', notification);
-            client.broadcast.to(user.room).emit('notification', chatManager.getUsersByRoom(user.room));
+            client.broadcast.to(user.room).emit('refresh-users', chatManager.getUsersByRoom(user.room));
         }
     });
 
