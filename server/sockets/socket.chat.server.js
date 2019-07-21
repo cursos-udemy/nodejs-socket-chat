@@ -30,10 +30,26 @@ io.on('connection', (client) => {
         client.broadcast.emit('notification', notification);
     });
 
-    client.on('send-message', function (data) {
+    client.on('send-public-message', function (data) {
+        const user = chatManager.getUser(client.id);
+        console.log('send-public-message: ', user.username, data.message);
+        const message = new ChatMessage(user.username, data.message);
+        client.broadcast.emit('publish-message', message)
+    });
+
+    client.on('send-private-message', function (data) {
+        //TODO: validar ID destinatario.
+        const user = chatManager.getUser(client.id);
+        console.log('send-private-message: ', user.username, data.message, data.receiver);
+        const message = new ChatMessage(user.username, data.message);
+        client.broadcast.to(data.receiver).emit('publish-message', message)
+    });
+
+    client.on('send-group-message', function (data) {
         const user = chatManager.getUser(client.id);
         console.log('send-message: ', user.username, data.message);
         const message = new ChatMessage(user.username, data.message);
         client.broadcast.emit('publish-message', message)
     });
+
 });

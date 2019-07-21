@@ -36,3 +36,7 @@ socket.on('notification', function (data) {
 socket.on('publish-message', (data) => {
     console.log(data);
 })
+
+socket.on ('receive-message', (data) => {
+    console.log(data);
+})
