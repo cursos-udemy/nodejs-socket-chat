@@ -25,7 +25,7 @@ socket.on('refresh-users', function (data) {
 });
 
 socket.on('publish-message', (data) => {
-    console.log(data);
+    renderMessage(data);
 })
 
 socket.on('receive-message', (data) => {

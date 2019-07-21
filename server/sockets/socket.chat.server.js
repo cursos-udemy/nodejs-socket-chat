@@ -48,12 +48,13 @@ io.on('connection', (client) => {
         client.broadcast.emit('publish-message', message)
     });
 
-    client.on('send-group-message', function (data) {
+    client.on('send-group-message', function (data, callback) {
         //TODO: validar message y room
         const user = chatManager.getUser(client.id);
-        console.log('send-group-message: ', user.username, data.message);
+        console.info('send-group-message: ', `id: ${user.id}, username: ${user.username}, room: ${user.room}`);
         const message = new ChatMessage(user.username, data.message);
         client.broadcast.to(data.room).emit('publish-message', message)
+        callback(null, message);
     });
 
     client.on('send-private-message', function (data) {
