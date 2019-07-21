@@ -1,15 +1,13 @@
 const { io } = require('../server');
 const { ChatManager } = require('../classes/ChatManager');
-const { User } = require('../classes/User');
+const { ChatMessage } = require('../classes/ChatMessage');
 
 const chatManager = new ChatManager();
 
 io.on('connection', (client) => {
 
-    client.on('exit-chat', (data, callback) => {
+    client.on('exit-chat', (data) => {
         console.log('<<<<<<<<<EXIT CHAT: ', client.id);
-        //chatManager.removeUser (client.id);
-        callback (null, chatManager.getUsers());
     });
 
     client.on('login-chat', (data, callback) => {
@@ -20,15 +18,22 @@ io.on('connection', (client) => {
         }
         console.log('login-chat, ', client.id);
         const user = chatManager.addUser(client.id, data.username);
-        callback (null, chatManager.getUsers());
-        const notification = {username: 'Administrador', message: `${user.username} se ha unido al chat!`};
-        client.broadcast.emit('notification', notification );
+        callback(null, chatManager.getUsers());
+        const notification = new ChatMessage('Administrador', `${user.username} se ha unido al chat!`);
+        client.broadcast.emit('notification', notification);
     });
 
     client.on('disconnect', () => {
         console.log('disconnect ', client.id);
-        const user = chatManager.removeUser (client.id);
-        const notification = {username: 'Administrador', message: `${user.username} ha abandonado el chat!`};
-        client.broadcast.emit('notification', notification );
+        const user = chatManager.removeUser(client.id);
+        const notification = new ChatMessage('Administrador', `${user.username} ha abandonado el chat!`);
+        client.broadcast.emit('notification', notification);
+    });
+
+    client.on('send-message', function (data) {
+        const user = chatManager.getUser(client.id);
+        console.log('send-message: ', user.username, data.message);
+        const message = new ChatMessage(user.username, data.message);
+        client.broadcast.emit('publish-message', message)
     });
 });

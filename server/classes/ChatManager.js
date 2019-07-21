@@ -11,8 +11,7 @@ class ChatManager {
         if (user) {
             return user;
         } else {
-            // const newUser = new User(id, username);
-            const newUser = {id, username};
+            const newUser = new User(id, username);
             this.users.push(newUser);
             return newUser;
         }

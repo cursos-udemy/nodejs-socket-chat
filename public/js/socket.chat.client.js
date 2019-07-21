@@ -26,11 +26,13 @@ socket.on('connect', function () {
 socket.on('disconnect', function () {
     console.log('Perdimos conexión con el servidor');
     const logoutInfo = { username, loginTime: new Date().getTime() };
-    socket.emit('exit-chat', logoutInfo, function (err) {
-        console.log('exit chat OK');
-    });
+    socket.emit('exit-chat', logoutInfo);
 });
 
 socket.on('notification', function (data) {
     console.log(data);
 });
+
+socket.on('publish-message', (data) => {
+    console.log(data);
+})
