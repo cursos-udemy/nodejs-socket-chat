@@ -44,15 +44,15 @@ io.on('connection', (client) => {
         //TODO: validar message
         const user = chatManager.getUser(client.id);
         console.log('send-public-message: ', user.username, data.message);
-        const message = new ChatMessage(user.username, data.message);
+        const message = new ChatMessage(user.username, data.message, user.color);
         client.broadcast.emit('publish-message', message)
     });
 
     client.on('send-group-message', function (data, callback) {
         //TODO: validar message y room
         const user = chatManager.getUser(client.id);
-        console.info('send-group-message: ', `id: ${user.id}, username: ${user.username}, room: ${user.room}`);
-        const message = new ChatMessage(user.username, data.message);
+        console.info('send-group-message: ', `id: ${client.id}, username: ${user.username}, room: ${user.room}`);
+        const message = new ChatMessage(user.username, data.message, user.color);
         client.broadcast.to(data.room).emit('publish-message', message)
         callback(null, message);
     });
@@ -61,7 +61,7 @@ io.on('connection', (client) => {
         //TODO: validar message y ID destinatario.
         const user = chatManager.getUser(client.id);
         console.log('send-private-message: ', user.username, data.message, data.receiver);
-        const message = new ChatMessage(user.username, data.message);
+        const message = new ChatMessage(user.username, data.message, user.color);
         client.broadcast.to(data.receiver).emit('publish-message', message)
     });
 });

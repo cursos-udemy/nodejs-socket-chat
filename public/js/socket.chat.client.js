@@ -17,7 +17,7 @@ socket.on('disconnect', function () {
 });
 
 socket.on('notification', function (data) {
-    console.log(data);
+    renderNotification(data);
 });
 
 socket.on('refresh-users', function (data) {
@@ -25,9 +25,5 @@ socket.on('refresh-users', function (data) {
 });
 
 socket.on('publish-message', (data) => {
-    renderMessage(data);
-})
-
-socket.on('receive-message', (data) => {
-    console.log(data);
-})
+    renderMessage(data, false);
+});

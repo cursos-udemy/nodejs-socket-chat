@@ -3,6 +3,7 @@ class User {
         this.id = id;
         this.username = username;
         this.room = room;
+        this.color = Math.floor(Math.random()*16777215).toString(16);
     }
 }
 

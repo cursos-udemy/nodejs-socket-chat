@@ -1,8 +1,9 @@
 class ChatMessage {
-    constructor (username, message) {
+    constructor (username, message, color) {
         this.username = username;
         this.message = message;
         this.timestamp = new Date().getTime();
+        this.color = color;
     }
 
     getUsername() {
